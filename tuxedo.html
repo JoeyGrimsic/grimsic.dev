@@ -1,26 +1,87 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Drapery Rod Optimizer</title>
+    <title>Rod Cutting Optimizer</title>
     <style>
-        /* Add CSS for inputs/results (omitted for brevity) */
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --padding: 1rem;
+            --border-radius: 8px;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .section {
+            background: #f9f9f9;
+            padding: var(--padding);
+            margin-bottom: var(--padding);
+            border-radius: var(--border-radius);
+            border: 1px solid #ddd;
+        }
+
+        button {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            margin: 5px;
+            font-size: 16px;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        input[type="number"] {
+            padding: 8px;
+            margin: 5px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+
+        .output-row {
+            margin: 10px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: var(--primary-color);
+            color: white;
+        }
     </style>
 </head>
 <body>
-    <h1>Drapery Rod Cutting Optimizer</h1>
-    
-    <!-- Stock Inputs -->
     <div class="section">
-        <h2>Stock Lengths Available</h2>
-        <label>12' rods: <input type="number" id="stock-12" min="0" value="0"></label>
-        <label>14' rods: <input type="number" id="stock-14" min="0" value="0"></label>
-        <label>16' rods: <input type="number" id="stock-16" min="0" value="0"></label>
-        <label>18' rods: <input type="number" id="stock-18" min="0" value="0"></label>
-    </div>
+        <h1>Rod Cutting Optimizer</h1>
+        
+        <h2>Stock Lengths</h2>
+        <div>
+            <label>12' rods: <input type="number" id="stock-12" min="0" value="0"></label>
+            <label>14' rods: <input type="number" id="stock-14" min="0" value="0"></label>
+            <label>16' rods: <input type="number" id="stock-16" min="0" value="0"></label>
+            <label>18' rods: <input type="number" id="stock-18" min="0" value="0"></label>
+        </div>
 
-    <!-- Output Pieces Input -->
-    <div class="section">
-        <h2>Required Output Pieces</h2>
+        <h2>Required Pieces</h2>
         <div id="outputs">
             <div class="output-row">
                 <input type="number" class="piece-size" placeholder="Size (feet)" min="1">
@@ -31,10 +92,106 @@
         <button onclick="addRow()">Add Piece</button>
     </div>
 
-    <!-- Calculate Button & Results -->
-    <button onclick="calculate()">Calculate</button>
-    <div id="results"></div>
+    <div class="section">
+        <button onclick="calculate()">Calculate</button>
+        <button onclick="exportCSV()" id="exportBtn" style="display: none;">Download CSV</button>
+        <div id="results"></div>
+    </div>
 
-    <script src="script.js"></script>
+    <script>
+        let calculationData = null;
+
+        // Dynamic row management
+        function addRow() {
+            const row = document.createElement('div');
+            row.className = 'output-row';
+            row.innerHTML = `
+                <input type="number" class="piece-size" placeholder="Size (feet)" min="1">
+                <input type="number" class="piece-qty" placeholder="Quantity" min="1">
+                <button onclick="removeRow(this)">Remove</button>
+            `;
+            document.getElementById('outputs').appendChild(row);
+        }
+
+        function removeRow(btn) {
+            btn.parentElement.remove();
+        }
+
+        function calculate() {
+            // Parse inputs
+            const stocks = {
+                12: parseInt(document.getElementById('stock-12').value) || 0,
+                14: parseInt(document.getElementById('stock-14').value) || 0,
+                16: parseInt(document.getElementById('stock-16').value) || 0,
+                18: parseInt(document.getElementById('stock-18').value) || 0,
+            };
+
+            const outputs = [];
+            document.querySelectorAll('.output-row').forEach(row => {
+                const size = parseFloat(row.querySelector('.piece-size').value) || 0;
+                const qty = parseInt(row.querySelector('.piece-qty').value) || 0;
+                if (size > 0 && qty > 0) outputs.push({ size, qty });
+            });
+
+            // Algorithm implementation
+            const result = optimizeCuts(stocks, outputs);
+            displayResults(result);
+            calculationData = result;
+            document.getElementById('exportBtn').style.display = 'inline-block';
+        }
+
+        function optimizeCuts(originalStocks, outputs) {
+            // Implementation logic (similar to previous version)
+            // Returns object with cuts, remainingStock, and waste
+        }
+
+        function displayResults(result) {
+            // Display tables for cuts, remaining stock, and waste
+        }
+
+        function exportCSV() {
+            if (!calculationData) return;
+            
+            let csvContent = "Inputs\nStock Length,Quantity\n";
+            
+            // Original stock
+            Object.entries(calculationData.originalStocks).forEach(([size, qty]) => {
+                csvContent += `${size},${qty}\n`;
+            });
+
+            // Required pieces
+            csvContent += "\nRequired Pieces\nSize,Quantity\n";
+            calculationData.outputs.forEach(p => {
+                csvContent += `${p.size},${p.qty}\n`;
+            });
+
+            // Cutting instructions
+            csvContent += "\nCutting Instructions\nStock Length,Cuts,Waste\n";
+            calculationData.cuts.forEach(c => {
+                csvContent += `${c.from},${c.cut}x${c.quantity},${c.waste}\n`;
+            });
+
+            // Remaining stock
+            csvContent += "\nRemaining Stock\nLength,Quantity\n";
+            Object.entries(calculationData.remainingStock).forEach(([size, qty]) => {
+                csvContent += `${size},${qty}\n`;
+            });
+
+            // Waste analysis
+            csvContent += "\nWaste Rods\nLength,Count\n";
+            calculationData.waste.forEach(w => {
+                csvContent += `${w.size},${w.count}\n`;
+            });
+
+            // Create downloadable file
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'cutting-plan.csv';
+            a.click();
+        }
+    </script>
 </body>
 </html>
+
