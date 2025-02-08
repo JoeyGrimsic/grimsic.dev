@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Drapery Rod Optimizer</title>
+    <style>
+        /* Add CSS for inputs/results (omitted for brevity) */
+    </style>
+</head>
+<body>
+    <h1>Drapery Rod Cutting Optimizer</h1>
+    
+    <!-- Stock Inputs -->
+    <div class="section">
+        <h2>Stock Lengths Available</h2>
+        <label>12' rods: <input type="number" id="stock-12" min="0" value="0"></label>
+        <label>14' rods: <input type="number" id="stock-14" min="0" value="0"></label>
+        <label>16' rods: <input type="number" id="stock-16" min="0" value="0"></label>
+        <label>18' rods: <input type="number" id="stock-18" min="0" value="0"></label>
+    </div>
+
+    <!-- Output Pieces Input -->
+    <div class="section">
+        <h2>Required Output Pieces</h2>
+        <div id="outputs">
+            <div class="output-row">
+                <input type="number" class="piece-size" placeholder="Size (feet)" min="1">
+                <input type="number" class="piece-qty" placeholder="Quantity" min="1">
+                <button onclick="removeRow(this)">Remove</button>
+            </div>
+        </div>
+        <button onclick="addRow()">Add Piece</button>
+    </div>
+
+    <!-- Calculate Button & Results -->
+    <button onclick="calculate()">Calculate</button>
+    <div id="results"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
