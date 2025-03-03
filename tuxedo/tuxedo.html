@@ -1,73 +1,4 @@
-// Test case function
-        function downloadTestCase() {
-            // Create a new workbook
-            const wb = XLSX.utils.book_new();
-            
-            // Create Stock sheet with comprehensive test data
-            const stockData = [
-                { Quantity: 10, Length: 2000 },
-                { Quantity: 5, Length: 1800 },
-                { Quantity: 8, Length: 1500 },
-                { Quantity: 4, Length: 2200 },
-                { Quantity: 3, Length: 3000 }
-            ];
-            const stockSheet = XLSX.utils.json_to_sheet(stockData, { header: ['Quantity', 'Length'] });
-            XLSX.utils.book_append_sheet(wb, stockSheet, 'Stock');
-            
-            // Create Order sheet with 10+ different lengths to test color assignment
-            const orderData = [
-                { Quantity: 5, Length: 450 },
-                { Quantity: 7, Length: 760 },
-                { Quantity: 3, Length: 1200 },
-                { Quantity: 8, Length: 350 },
-                { Quantity: 4, Length: 820 },
-                { Quantity: 6, Length: 580 },
-                { Quantity: 2, Length: 950 },
-                { Quantity: 9, Length: 400 },
-                { Quantity: 3, Length: 700 },
-                { Quantity: 5, Length: 520 },
-                { Quantity: 4, Length: 620 },
-                { Quantity: 3, Length: 880 }
-            ];
-            const orderSheet = XLSX.utils.json_to_sheet(orderData, { header: ['Quantity', 'Length'] });
-            XLSX.utils.book_append_sheet(wb, orderSheet, 'Order');
-            
-            // Generate and download the file
-            XLSX.writeFile(wb, 'cutting_stock_test_case.xlsx');
-        }        function generateDynamicLegend() {
-            let html = `
-                <div class="legend">
-                    <h4>Legend:</h4>
-                    <div class="legend-section">
-                        <div class="legend-item">
-                            <div class="legend-color" style="background-color: #e74c3c;"></div>
-                            <span>Waste</span>
-                        </div>
-                    </div>
-                    
-                    <h4>Piece Lengths:</h4>
-                    <div class="legend-section" style="display: flex; flex-wrap: wrap; gap: 10px;">`;
-            
-            // Sort piece lengths in descending order for consistent display
-            const sortedLengths = Object.keys(pieceLengthColors)
-                .map(parseFloat)
-                .sort((a, b) => b - a);
-            
-            sortedLengths.forEach(length => {
-                const color = pieceLengthColors[length];
-                html += `
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: ${color};"></div>
-                        <span>${formatLengthWithUnit(length)}</span>
-                    </div>`;
-            });
-            
-            html += `
-                    </div>
-                </div>`;
-            
-            return html;
-        }<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -438,13 +369,12 @@
             <div class="tab active" data-tab="main">Main Application</div>
             <div class="tab" data-tab="format">File Format Guide</div>
             <div class="tab" data-tab="about">About the Algorithm</div>
-            <div class="tab" data-tab="settings">Settings</div>
         </div>
 
         <div id="main" class="tab-content active">
             <div class="card">
                 <div id="fileUpload" class="file-upload">
-                    <div class="file-upload-icon">📄</div>
+                    <div class="file-upload-icon">📂</div>
                     <div class="file-upload-text">Drop your Excel file here or click to browse</div>
                     <input type="file" id="excelFile" accept=".xlsx, .xls">
                     <label for="excelFile" class="btn btn-primary">Choose File</label>
@@ -493,7 +423,7 @@
                     <p>Name the first sheet "Stock" with the following columns:</p>
                     <ul>
                         <li><strong>Quantity:</strong> Number of available stock rods of this length</li>
-                        <li><strong>Length:</strong> Length of the stock rods in your preferred unit (mm, cm, inches, etc.)</li>
+                        <li><strong>Length:</strong> Length of the stock rods in your preferred unit (mm, units , inches, etc.)</li>
                     </ul>
                     
                     <h3>Sheet 2: Order Requirements</h3>
@@ -538,52 +468,7 @@
         <div id="settings" class="tab-content">
             <div class="card">
                 <h2>Theme Settings</h2>
-                <div class="theme-settings">
-                    <label for="themeSelect">Select Theme:</label>
-                    <select id="themeSelect" class="select-control">
-                        <option value="default" selected>Default Blue</option>
-                        <option value="dark">Dark Mode</option>
-                        <option value="green">Forest Green</option>
-                        <option value="purple">Royal Purple</option>
-                        <option value="orange">Warm Orange</option>
-                        <option value="custom">Custom Theme</option>
-                    </select>
-                    
-                    <div id="customThemeSettings" class="custom-theme-settings hidden">
-                        <h3>Custom Theme Colors</h3>
-                        <div class="color-picker-group">
-                            <div class="color-picker">
-                                <label for="primaryColor">Primary Color:</label>
-                                <input type="color" id="primaryColor" value="#3498db">
-                            </div>
-                            <div class="color-picker">
-                                <label for="secondaryColor">Secondary Color:</label>
-                                <input type="color" id="secondaryColor" value="#2c3e50">
-                            </div>
-                            <div class="color-picker">
-                                <label for="successColor">Success Color:</label>
-                                <input type="color" id="successColor" value="#2ecc71">
-                            </div>
-                            <div class="color-picker">
-                                <label for="warningColor">Warning Color:</label>
-                                <input type="color" id="warningColor" value="#f39c12">
-                            </div>
-                            <div class="color-picker">
-                                <label for="errorColor">Error Color:</label>
-                                <input type="color" id="errorColor" value="#e74c3c">
-                            </div>
-                            <div class="color-picker">
-                                <label for="lightBg">Light Background:</label>
-                                <input type="color" id="lightBg" value="#ecf0f1">
-                            </div>
-                            <div class="color-picker">
-                                <label for="darkBg">Dark Background:</label>
-                                <input type="color" id="darkBg" value="#34495e">
-                            </div>
-                        </div>
-                        <button id="saveCustomTheme" class="btn btn-success">Apply Custom Theme</button>
-                    </div>
-                </div>
+                <p>This feature has been temporarily disabled.</p>
             </div>
         </div>
 
@@ -601,7 +486,7 @@
         let wastePercentage = 0;
         let totalStockLength = 0;
         let usedStockLength = 0;
-        let currentUnit = 'cm'; // Default unit
+        let currentUnit = 'units '; // Default unit
         let colorPalette = [
             '#3498db', '#2ecc71', '#9b59b6', '#e67e22', '#1abc9c',
             '#f1c40f', '#34495e', '#16a085', '#27ae60', '#2980b9',
@@ -612,76 +497,6 @@
         
         // Track unique piece lengths and their assigned colors
         let pieceLengthColors = {};
-        
-        // Theme definitions
-        const themes = {
-            default: {
-                primaryColor: '#3498db',
-                secondaryColor: '#2c3e50',
-                successColor: '#2ecc71',
-                warningColor: '#f39c12',
-                errorColor: '#e74c3c',
-                lightBg: '#ecf0f1',
-                darkBg: '#34495e',
-                textLight: '#f8f9fa',
-                textDark: '#2c3e50'
-            },
-            dark: {
-                primaryColor: '#6c5ce7',
-                secondaryColor: '#2d3436',
-                successColor: '#00b894',
-                warningColor: '#fdcb6e',
-                errorColor: '#d63031',
-                lightBg: '#2d3436',
-                darkBg: '#1e272e',
-                textLight: '#dfe6e9',
-                textDark: '#b2bec3'
-            },
-            green: {
-                primaryColor: '#27ae60',
-                secondaryColor: '#1e3a29',
-                successColor: '#2ecc71',
-                warningColor: '#f1c40f',
-                errorColor: '#e74c3c',
-                lightBg: '#e9f7ef',
-                darkBg: '#145a32',
-                textLight: '#f8f9fa',
-                textDark: '#1e3a29'
-            },
-            purple: {
-                primaryColor: '#8e44ad',
-                secondaryColor: '#4a235a',
-                successColor: '#2ecc71',
-                warningColor: '#f39c12',
-                errorColor: '#e74c3c',
-                lightBg: '#f5eef8',
-                darkBg: '#6c3483',
-                textLight: '#f8f9fa',
-                textDark: '#4a235a'
-            },
-            orange: {
-                primaryColor: '#e67e22',
-                secondaryColor: '#784212',
-                successColor: '#2ecc71',
-                warningColor: '#f1c40f',
-                errorColor: '#e74c3c',
-                lightBg: '#fef5e7',
-                darkBg: '#d35400',
-                textLight: '#f8f9fa',
-                textDark: '#784212'
-            },
-            custom: {
-                primaryColor: '#3498db',
-                secondaryColor: '#2c3e50',
-                successColor: '#2ecc71',
-                warningColor: '#f39c12',
-                errorColor: '#e74c3c',
-                lightBg: '#ecf0f1',
-                darkBg: '#34495e',
-                textLight: '#f8f9fa',
-                textDark: '#2c3e50'
-            }
-        };
 
         // DOM elements
         const fileUploadArea = document.getElementById('fileUpload');
@@ -877,7 +692,7 @@
             // Convert to mm as base unit
             let inMm;
             switch(fromUnit) {
-                case 'cm': inMm = value * 10; break;
+                case 'units ': inMm = value * 10; break;
                 case 'm': inMm = value * 1000; break;
                 case 'in': inMm = value * 25.4; break;
                 case 'ft': inMm = value * 304.8; break;
@@ -887,13 +702,51 @@
             
             // Convert from mm to target unit
             switch(toUnit) {
-                case 'cm': return inMm / 10;
+                case 'units ': return inMm / 10;
                 case 'm': return inMm / 1000;
                 case 'in': return inMm / 25.4;
                 case 'ft': return inMm / 304.8;
                 case 'mm': return inMm;
                 default: return inMm;
             }
+        }
+        
+        // Test case function
+        function downloadTestCase() {
+            // Create a new workbook
+            const wb = XLSX.utils.book_new();
+            
+            // Create Stock sheet with comprehensive test data
+            const stockData = [
+                { Quantity: 10, Length: 2000 },
+                { Quantity: 5, Length: 1800 },
+                { Quantity: 8, Length: 1500 },
+                { Quantity: 4, Length: 2200 },
+                { Quantity: 3, Length: 3000 }
+            ];
+            const stockSheet = XLSX.utils.json_to_sheet(stockData, { header: ['Quantity', 'Length'] });
+            XLSX.utils.book_append_sheet(wb, stockSheet, 'Stock');
+            
+            // Create Order sheet with 10+ different lengths to test color assignment
+            const orderData = [
+                { Quantity: 5, Length: 450 },
+                { Quantity: 7, Length: 760 },
+                { Quantity: 3, Length: 1200 },
+                { Quantity: 8, Length: 350 },
+                { Quantity: 4, Length: 820 },
+                { Quantity: 6, Length: 580 },
+                { Quantity: 2, Length: 950 },
+                { Quantity: 9, Length: 400 },
+                { Quantity: 3, Length: 700 },
+                { Quantity: 5, Length: 520 },
+                { Quantity: 4, Length: 620 },
+                { Quantity: 3, Length: 880 }
+            ];
+            const orderSheet = XLSX.utils.json_to_sheet(orderData, { header: ['Quantity', 'Length'] });
+            XLSX.utils.book_append_sheet(wb, orderSheet, 'Order');
+            
+            // Generate and download the file
+            XLSX.writeFile(wb, 'cutting_stock_test_case.xlsx');
         }
 
         // Tab navigation functions
