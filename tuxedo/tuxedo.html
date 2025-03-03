@@ -1,4 +1,73 @@
-
+// Test case function
+        function downloadTestCase() {
+            // Create a new workbook
+            const wb = XLSX.utils.book_new();
+            
+            // Create Stock sheet with comprehensive test data
+            const stockData = [
+                { Quantity: 10, Length: 2000 },
+                { Quantity: 5, Length: 1800 },
+                { Quantity: 8, Length: 1500 },
+                { Quantity: 4, Length: 2200 },
+                { Quantity: 3, Length: 3000 }
+            ];
+            const stockSheet = XLSX.utils.json_to_sheet(stockData, { header: ['Quantity', 'Length'] });
+            XLSX.utils.book_append_sheet(wb, stockSheet, 'Stock');
+            
+            // Create Order sheet with 10+ different lengths to test color assignment
+            const orderData = [
+                { Quantity: 5, Length: 450 },
+                { Quantity: 7, Length: 760 },
+                { Quantity: 3, Length: 1200 },
+                { Quantity: 8, Length: 350 },
+                { Quantity: 4, Length: 820 },
+                { Quantity: 6, Length: 580 },
+                { Quantity: 2, Length: 950 },
+                { Quantity: 9, Length: 400 },
+                { Quantity: 3, Length: 700 },
+                { Quantity: 5, Length: 520 },
+                { Quantity: 4, Length: 620 },
+                { Quantity: 3, Length: 880 }
+            ];
+            const orderSheet = XLSX.utils.json_to_sheet(orderData, { header: ['Quantity', 'Length'] });
+            XLSX.utils.book_append_sheet(wb, orderSheet, 'Order');
+            
+            // Generate and download the file
+            XLSX.writeFile(wb, 'cutting_stock_test_case.xlsx');
+        }        function generateDynamicLegend() {
+            let html = `
+                <div class="legend">
+                    <h4>Legend:</h4>
+                    <div class="legend-section">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #e74c3c;"></div>
+                            <span>Waste</span>
+                        </div>
+                    </div>
+                    
+                    <h4>Piece Lengths:</h4>
+                    <div class="legend-section" style="display: flex; flex-wrap: wrap; gap: 10px;">`;
+            
+            // Sort piece lengths in descending order for consistent display
+            const sortedLengths = Object.keys(pieceLengthColors)
+                .map(parseFloat)
+                .sort((a, b) => b - a);
+            
+            sortedLengths.forEach(length => {
+                const color = pieceLengthColors[length];
+                html += `
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: ${color};"></div>
+                        <span>${formatLengthWithUnit(length)}</span>
+                    </div>`;
+            });
+            
+            html += `
+                    </div>
+                </div>`;
+            
+            return html;
+        }<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -408,43 +477,6 @@
 
                     <div class="visualization">
                         <h3>Visual Representation</h3>
-                        <div class="legend">
-                            <h4>Legend:</h4>
-                            <div class="legend-section">
-                                <div class="legend-item">
-                                    <div class="legend-color" style="background-color: #e74c3c;"></div>
-                                    <span>Waste</span>
-                                </div>
-                            </div>
-                            
-                            <h4>Rod Piece Colors:</h4>
-                            <div class="legend-section" style="display: flex; flex-wrap: wrap; gap: 10px;">
-                                <div class="legend-item">
-                                    <div class="legend-color" style="background-color: #3498db;"></div>
-                                    <span>Piece 1</span>
-                                </div>
-                                <div class="legend-item">
-                                    <div class="legend-color" style="background-color: #2ecc71;"></div>
-                                    <span>Piece 2</span>
-                                </div>
-                                <div class="legend-item">
-                                    <div class="legend-color" style="background-color: #9b59b6;"></div>
-                                    <span>Piece 3</span>
-                                </div>
-                                <div class="legend-item">
-                                    <div class="legend-color" style="background-color: #e67e22;"></div>
-                                    <span>Piece 4</span>
-                                </div>
-                                <div class="legend-item">
-                                    <div class="legend-color" style="background-color: #1abc9c;"></div>
-                                    <span>Piece 5</span>
-                                </div>
-                                <div class="legend-item">
-                                    <div class="legend-color" style="background-color: #f1c40f;"></div>
-                                    <span>Piece 6</span>
-                                </div>
-                            </div>
-                        </div>
                         <div id="rods"></div>
                     </div>
                 </div>
@@ -573,8 +605,13 @@
         let colorPalette = [
             '#3498db', '#2ecc71', '#9b59b6', '#e67e22', '#1abc9c',
             '#f1c40f', '#34495e', '#16a085', '#27ae60', '#2980b9',
-            '#8e44ad', '#f39c12', '#d35400', '#c0392b', '#7f8c8d'
+            '#8e44ad', '#f39c12', '#d35400', '#c0392b', '#7f8c8d',
+            '#3c6382', '#38ada9', '#218c74', '#b71540', '#e58e26',
+            '#0652DD', '#9980FA', '#833471', '#006266', '#1B1464'
         ];
+        
+        // Track unique piece lengths and their assigned colors
+        let pieceLengthColors = {};
         
         // Theme definitions
         const themes = {
@@ -697,11 +734,26 @@
                             content.classList.remove('active');
                         }
                     });
+                    
+                    // Save the active tab to localStorage
+                    localStorage.setItem('active-tab', tabId);
                 });
             });
             
+            // Restore the previously active tab if it exists
+            const savedTab = localStorage.getItem('active-tab');
+            if (savedTab) {
+                const tabToActivate = document.querySelector(`.tab[data-tab="${savedTab}"]`);
+                if (tabToActivate) {
+                    tabToActivate.click();
+                }
+            }
+            
             // Now set up all other event listeners
             setupEventListeners();
+            
+            // Add test case download button listener
+            document.getElementById('downloadTestCase').addEventListener('click', downloadTestCase);
         });
 
         function setupEventListeners() {
@@ -780,6 +832,18 @@
             
             // Save preference
             localStorage.setItem('preferred-theme', themeName);
+            
+            // Update the theme selector to reflect current theme
+            if (themeSelect) {
+                themeSelect.value = themeName;
+                
+                // Show/hide custom theme settings based on selection
+                if (themeName === 'custom' && customThemeSettings) {
+                    customThemeSettings.classList.remove('hidden');
+                } else if (customThemeSettings) {
+                    customThemeSettings.classList.add('hidden');
+                }
+            }
         }
         
         function saveCustomTheme() {
@@ -1055,11 +1119,22 @@
             totalWaste = 0;
             usedStockLength = 0;
             
+            // Reset piece length colors mapping
+            pieceLengthColors = {};
+            
             // Calculate waste and used length
             cuttingPlan.forEach(rod => {
                 if (rod.cuts.length > 0) {
                     totalWaste += rod.remainingLength;
                     usedStockLength += rod.originalLength;
+                    
+                    // Track unique piece lengths for color assignment
+                    rod.cuts.forEach(cut => {
+                        if (!pieceLengthColors.hasOwnProperty(cut)) {
+                            const colorIndex = Object.keys(pieceLengthColors).length % colorPalette.length;
+                            pieceLengthColors[cut] = colorPalette[colorIndex];
+                        }
+                    });
                 }
             });
             
@@ -1156,10 +1231,10 @@
                 
                 // Add cut pieces
                 rod.cuts.forEach((cut, cutIndex) => {
-                    const colorIndex = cutIndex % colorPalette.length;
+                    const color = pieceLengthColors[cut];
                     const percentWidth = (cut / rod.originalLength) * 100;
                     
-                    html += `<div class="piece" style="left: ${currentPosition}%; width: ${percentWidth}%; background-color: ${colorPalette[colorIndex]}"></div>`;
+                    html += `<div class="piece" style="left: ${currentPosition}%; width: ${percentWidth}%; background-color: ${color}"></div>`;
                     
                     currentPosition += percentWidth;
                 });
