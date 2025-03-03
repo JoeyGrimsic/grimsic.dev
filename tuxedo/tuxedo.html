@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cutting Stock Optimization Tool</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --error-color: #e74c3c;
+            --light-bg: #ecf0f1;
+            --dark-bg: #34495e;
+            --text-light: #f8f9fa;
+            --text-dark: #2c3e50;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--light-bg);
+            color: var(--text-dark);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: var(--secondary-color);
+            margin-bottom: 10px;
+        }
+
+        .description {
+            max-width: 800px;
+            margin: 0 auto 30px;
+            text-align: center;
+            color: var(--secondary-color);
+        }
+
+        .card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .file-upload {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px;
+            border: 2px dashed var(--primary-color);
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .file-upload:hover {
+            border-color: var(--secondary-color);
+            background-color: rgba(52, 152, 219, 0.05);
+        }
+
+        .file-upload.drag-over {
+            border-color: var(--success-color);
+            background-color: rgba(46, 204, 113, 0.05);
+        }
+
+        .file-upload-icon {
+            font-size: 48px;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .file-upload-text {
+            margin-bottom: 15px;
+            color: var(--secondary-color);
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+        }
+
+        .btn-success {
+            background-color: var(--success-color);
+        }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+
+        .btn-success:hover {
+            background-color: #27ae60;
+        }
+
+        .btn:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .file-name {
+            margin-top: 10px;
+            font-size: 14px;
+            color: var(--secondary-color);
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .results {
+            margin-top: 30px;
+        }
+
+        .results-tables {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .waste-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
+        .low-waste {
+            background-color: var(--success-color);
+        }
+
+        .medium-waste {
+            background-color: var(--warning-color);
+        }
+
+        .high-waste {
+            background-color: var(--error-color);
+        }
+
+        .waste-summary {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .visualization {
+            margin-top: 30px;
+        }
+
+        .rod {
+            height: 30px;
+            background-color: #e0e0e0;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .piece {
+            height: 100%;
+            display: inline-block;
+            position: absolute;
+            border-right: 1px dashed #fff;
+        }
+
+        .waste {
+            height: 100%;
+            display: inline-block;
+            position: absolute;
+            background-color: #e74c3c;
+            border-right: 1px dashed #fff;
+        }
+
+        .legend {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            border-radius: 4px;
+        }
+
+        .template-section {
+            margin-top: 30px;
+        }
+
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: var(--border-radius);
+            color: white;
+        }
+
+        .alert-error {
+            background-color: var(--error-color);
+        }
+
+        .alert-success {
+            background-color: var(--success-color);
+        }
+
+        .alert-warning {
+            background-color: var(--warning-color);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: var(--secondary-color);
+            font-size: 14px;
+        }
+
+        .instructions {
+            margin-bottom: 20px;
+        }
+
+        .instructions ol {
+            padding-left: 20px;
+        }
+
+        .instructions li {
+            margin-bottom: 5px;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            border-bottom: none;
+            border-radius: 5px 5px 0 0;
+            margin-right: 5px;
+        }
+
+        .tab.active {
+            background-color: white;
+            border-color: #ddd;
+            color: var(--primary-color);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .results-tables {
+                grid-template-columns: 1fr;
+            }
+
+            .buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Cutting Stock Optimization Tool</h1>
+            <p class="description">Upload an Excel file with your stock inventory and order requirements to calculate the optimal cutting pattern with minimal waste.</p>
+        </header>
+
+        <div class="tabs">
+            <div class="tab active" data-tab="main">Main Application</div>
+            <div class="tab" data-tab="format">File Format Guide</div>
+            <div class="tab" data-tab="about">About the Algorithm</div>
+        </div>
+
+        <div id="main" class="tab-content active">
+            <div class="card">
+                <div id="fileUpload" class="file-upload">
+                    <div class="file-upload-icon">📄</div>
+                    <div class="file-upload-text">Drop your Excel file here or click to browse</div>
+                    <input type="file" id="excelFile" accept=".xlsx, .xls">
+                    <label for="excelFile" class="btn btn-primary">Choose File</label>
+                    <div id="fileName" class="file-name"></div>
+                </div>
+
+                <div class="alert alert-error hidden" id="errorAlert"></div>
+
+                <div class="buttons">
+                    <button id="processButton" class="btn btn-primary" disabled>Process File</button>
+                    <button id="downloadTemplate" class="btn btn-success">Download Template</button>
+                </div>
+            </div>
+
+            <div id="results" class="results hidden">
+                <div class="card">
+                    <h2>Optimization Results</h2>
+                    <div id="summaryStats"></div>
+                    
+                    <div class="buttons">
+                        <button id="downloadResults" class="btn btn-success">Download Results</button>
+                    </div>
+
+                    <div class="results-tables">
+                        <div>
+                            <h3>Cutting Pattern</h3>
+                            <div id="cuttingPattern"></div>
+                        </div>
+                    </div>
+
+                    <div class="visualization">
+                        <h3>Visual Representation</h3>
+                        <div class="legend">
+                            <div class="legend-item">
+                                <div class="legend-color" style="background-color: #3498db;"></div>
+                                <span>Cut Pieces</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background-color: #e74c3c;"></div>
+                                <span>Waste</span>
+                            </div>
+                        </div>
+                        <div id="rods"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="format" class="tab-content">
+            <div class="card">
+                <h2>Excel File Format Requirements</h2>
+                <div class="instructions">
+                    <p>Your Excel file should contain two sheets with the following structure:</p>
+                    
+                    <h3>Sheet 1: Stock Inventory</h3>
+                    <p>Name the first sheet "Stock" with the following columns:</p>
+                    <ul>
+                        <li><strong>Quantity:</strong> Number of available stock rods of this length</li>
+                        <li><strong>Length:</strong> Length of the stock rods in your preferred unit (mm, cm, inches, etc.)</li>
+                    </ul>
+                    
+                    <h3>Sheet 2: Order Requirements</h3>
+                    <p>Name the second sheet "Order" with the following column:</p>
+                    <ul>
+                        <li><strong>Length:</strong> Length of each required piece in the same unit as stock rods</li>
+                    </ul>
+                    
+                    <p>You can use the "Download Template" button to get a correctly formatted Excel file template.</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="about" class="tab-content">
+            <div class="card">
+                <h2>About the Cutting Stock Optimization Algorithm</h2>
+                <div class="instructions">
+                    <p>This tool uses the First-Fit Decreasing (FFD) algorithm to solve the cutting stock problem:</p>
+                    
+                    <ol>
+                        <li>Sort required pieces in decreasing order of length</li>
+                        <li>For each required piece:
+                            <ul>
+                                <li>Find the first available stock rod with enough remaining length</li>
+                                <li>Assign the piece to that rod</li>
+                                <li>Update the remaining length of the rod</li>
+                            </ul>
+                        </li>
+                        <li>Repeat until all pieces are assigned or no suitable stock remains</li>
+                    </ol>
+                    
+                    <p>This greedy approach provides a good balance between optimization quality and computational speed. While it doesn't guarantee the mathematical optimum in all cases, it typically produces results with reasonably low waste.</p>
+                    
+                    <p>For extremely complex cutting stock problems or when absolute mathematical optimality is required, more advanced algorithms like branch-and-price or column generation methods would be needed.</p>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>&copy; 2025 Cutting Stock Optimization Tool</p>
+        </footer>
+    </div>
+
+    <script>
+        // Global variables
+        let stockRods = [];
+        let orderPieces = [];
+        let cuttingPlan = [];
+        let totalWaste = 0;
+        let wastePercentage = 0;
+        let totalStockLength = 0;
+        let usedStockLength = 0;
+        let colorPalette = [
+            '#3498db', '#2ecc71', '#9b59b6', '#e67e22', '#1abc9c',
+            '#f1c40f', '#34495e', '#16a085', '#27ae60', '#2980b9',
+            '#8e44ad', '#f39c12', '#d35400', '#c0392b', '#7f8c8d'
+        ];
+
+        // DOM elements
+        const fileUploadArea = document.getElementById('fileUpload');
+        const fileInput = document.getElementById('excelFile');
+        const fileNameDisplay = document.getElementById('fileName');
+        const processButton = document.getElementById('processButton');
+        const downloadTemplateButton = document.getElementById('downloadTemplate');
+        const downloadResultsButton = document.getElementById('downloadResults');
+        const resultsSection = document.getElementById('results');
+        const summaryStatsElement = document.getElementById('summaryStats');
+        const cuttingPatternElement = document.getElementById('cuttingPattern');
+        const rodsVisualization = document.getElementById('rods');
+        const errorAlert = document.getElementById('errorAlert');
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            // File upload events
+            fileUploadArea.addEventListener('dragover', handleDragOver);
+            fileUploadArea.addEventListener('dragleave', handleDragLeave);
+            fileUploadArea.addEventListener('drop', handleDrop);
+            fileInput.addEventListener('change', handleFileSelect);
+            
+            // Button clicks
+            processButton.addEventListener('click', processFile);
+            downloadTemplateButton.addEventListener('click', downloadTemplate);
+            downloadResultsButton.addEventListener('click', downloadResults);
+            
+            // Tab navigation
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabId = tab.getAttribute('data-tab');
+                    activateTab(tabId);
+                });
+            });
+        }
+
+        // Tab navigation functions
+        function activateTab(tabId) {
+            // Update tabs
+            tabs.forEach(tab => {
+                if (tab.getAttribute('data-tab') === tabId) {
+                    tab.classList.add('active');
+                } else {
+                    tab.classList.remove('active');
+                }
+            });
+            
+            // Update content
+            tabContents.forEach(content => {
+                if (content.id === tabId) {
+                    content.classList.add('active');
+                } else {
+                    content.classList.remove('active');
+                }
+            });
+        }
+
+        // File handling functions
+        function handleDragOver(e) {
+            e.preventDefault();
+            fileUploadArea.classList.add('drag-over');
+        }
+
+        function handleDragLeave(e) {
+            e.preventDefault();
+            fileUploadArea.classList.remove('drag-over');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            fileUploadArea.classList.remove('drag-over');
+            
+            if (e.dataTransfer.files.length) {
+                fileInput.files = e.dataTransfer.files;
+                updateFileName();
+                processButton.disabled = false;
+            }
+        }
+
+        function handleFileSelect() {
+            updateFileName();
+            processButton.disabled = fileInput.files.length === 0;
+        }
+
+        function updateFileName() {
+            if (fileInput.files.length > 0) {
+                fileNameDisplay.textContent = fileInput.files[0].name;
+            } else {
+                fileNameDisplay.textContent = '';
+            }
+        }
+
+        // Main processing function
+        function processFile() {
+            hideError();
+            
+            if (fileInput.files.length === 0) {
+                showError('Please select a file first.');
+                return;
+            }
+            
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    
+                    // Check for required sheets
+                    if (!workbook.SheetNames.includes('Stock') || !workbook.SheetNames.includes('Order')) {
+                        showError('Excel file must contain sheets named "Stock" and "Order".');
+                        return;
+                    }
+                    
+                    // Parse stock inventory
+                    const stockSheet = workbook.Sheets['Stock'];
+                    const stockData = XLSX.utils.sheet_to_json(stockSheet);
+                    
+                    if (stockData.length === 0 || !stockData[0].hasOwnProperty('Quantity') || !stockData[0].hasOwnProperty('Length')) {
+                        showError('Stock sheet must contain "Quantity" and "Length" columns.');
+                        return;
+                    }
+                    
+                    // Parse order requirements
+                    const orderSheet = workbook.Sheets['Order'];
+                    const orderData = XLSX.utils.sheet_to_json(orderSheet);
+                    
+                    if (orderData.length === 0 || !orderData[0].hasOwnProperty('Length')) {
+                        showError('Order sheet must contain a "Length" column.');
+                        return;
+                    }
+                    
+                    // Process data
+                    processData(stockData, orderData);
+                    
+                } catch (error) {
+                    showError('Error processing file: ' + error.message);
+                    console.error(error);
+                }
+            };
+            
+            reader.onerror = function() {
+                showError('Error reading file.');
+            };
+            
+            reader.readAsArrayBuffer(file);
+        }
+
+        function processData(stockData, orderData) {
+            // Reset global variables
+            stockRods = [];
+            orderPieces = [];
+            cuttingPlan = [];
+            totalWaste = 0;
+            totalStockLength = 0;
+            usedStockLength = 0;
+            
+            // Expand stock data based on quantities
+            stockData.forEach(item => {
+                const quantity = parseInt(item.Quantity);
+                const length = parseFloat(item.Length);
+                
+                if (isNaN(quantity) || isNaN(length) || quantity <= 0 || length <= 0) {
+                    showError('Invalid stock data. Quantity and Length must be positive numbers.');
+                    return;
+                }
+                
+                for (let i = 0; i < quantity; i++) {
+                    stockRods.push({
+                        originalLength: length,
+                        remainingLength: length,
+                        cuts: []
+                    });
+                    totalStockLength += length;
+                }
+            });
+            
+            // Prepare order data
+            orderData.forEach(item => {
+                const length = parseFloat(item.Length);
+                
+                if (isNaN(length) || length <= 0) {
+                    showError('Invalid order data. Length must be a positive number.');
+                    return;
+                }
+                
+                orderPieces.push(length);
+            });
+            
+            // Sort order pieces by length (decreasing)
+            orderPieces.sort((a, b) => b - a);
+            
+            // Apply First-Fit Decreasing algorithm
+            const result = firstFitDecreasing(stockRods, orderPieces);
+            
+            if (!result.success) {
+                showError('Cannot fulfill order with available stock. Please add more stock or reduce order requirements.');
+                return;
+            }
+            
+            // Calculate statistics
+            calculateStatistics();
+            
+            // Display results
+            displayResults();
+        }
+
+        // Optimization algorithm
+        function firstFitDecreasing(stockRods, orderPieces) {
+            cuttingPlan = stockRods.map(rod => ({
+                originalLength: rod.originalLength,
+                remainingLength: rod.originalLength,
+                cuts: []
+            }));
+            
+            // For each piece in the order
+            for (let i = 0; i < orderPieces.length; i++) {
+                const pieceLength = orderPieces[i];
+                let placed = false;
+                
+                // Try to place it in an existing rod
+                for (let j = 0; j < cuttingPlan.length; j++) {
+                    if (cuttingPlan[j].remainingLength >= pieceLength) {
+                        // Place the piece here
+                        cuttingPlan[j].cuts.push(pieceLength);
+                        cuttingPlan[j].remainingLength -= pieceLength;
+                        placed = true;
+                        break;
+                    }
+                }
+                
+                if (!placed) {
+                    return { success: false, message: "Not enough stock for order" };
+                }
+            }
+            
+            return { success: true, cuttingPlan: cuttingPlan };
+        }
+
+        // Statistics calculation
+        function calculateStatistics() {
+            totalWaste = 0;
+            usedStockLength = 0;
+            
+            // Calculate waste and used length
+            cuttingPlan.forEach(rod => {
+                if (rod.cuts.length > 0) {
+                    totalWaste += rod.remainingLength;
+                    usedStockLength += rod.originalLength;
+                }
+            });
+            
+            // Calculate waste percentage
+            wastePercentage = (totalWaste / usedStockLength) * 100;
+        }
+
+        // Results display functions
+        function displayResults() {
+            // Sort the cutting plan to put used rods first
+            cuttingPlan.sort((a, b) => {
+                if (a.cuts.length === 0 && b.cuts.length > 0) return 1;
+                if (a.cuts.length > 0 && b.cuts.length === 0) return -1;
+                return b.originalLength - b.remainingLength - (a.originalLength - a.remainingLength);
+            });
+            
+            // Display summary statistics
+            displaySummaryStats();
+            
+            // Display cutting pattern
+            displayCuttingPattern();
+            
+            // Display visualization
+            displayVisualization();
+            
+            // Show results section
+            resultsSection.classList.remove('hidden');
+        }
+
+        function displaySummaryStats() {
+            const usedRods = cuttingPlan.filter(rod => rod.cuts.length > 0).length;
+            const unusedRods = cuttingPlan.filter(rod => rod.cuts.length === 0).length;
+            
+            let wasteClass = 'success';
+            if (wastePercentage > 15) wasteClass = 'warning';
+            if (wastePercentage > 30) wasteClass = 'error';
+            
+            const html = `
+                <div class="waste-summary">
+                    <span class="waste-indicator ${wasteClass === 'success' ? 'low-waste' : wasteClass === 'warning' ? 'medium-waste' : 'high-waste'}"></span>
+                    <strong>Waste: ${wastePercentage.toFixed(2)}%</strong> (${totalWaste.toFixed(2)} units out of ${usedStockLength.toFixed(2)} used)
+                </div>
+                <p><strong>Rods Used:</strong> ${usedRods} out of ${cuttingPlan.length} available</p>
+                <p><strong>Pieces Cut:</strong> ${orderPieces.length}</p>
+            `;
+            
+            summaryStatsElement.innerHTML = html;
+        }
+
+        function displayCuttingPattern() {
+            let html = '<table>';
+            html += '<tr><th>Rod</th><th>Original Length</th><th>Cuts</th><th>Remaining (Waste)</th></tr>';
+            
+            // Only show used rods
+            const usedRods = cuttingPlan.filter(rod => rod.cuts.length > 0);
+            
+            usedRods.forEach((rod, index) => {
+                const wastePercentage = (rod.remainingLength / rod.originalLength) * 100;
+                let wasteClass = 'success';
+                if (wastePercentage > 15) wasteClass = 'warning';
+                if (wastePercentage > 30) wasteClass = 'error';
+                
+                html += `<tr>
+                    <td>${index + 1}</td>
+                    <td>${rod.originalLength.toFixed(2)}</td>
+                    <td>${rod.cuts.map(cut => cut.toFixed(2)).join(', ')}</td>
+                    <td>
+                        <span class="waste-indicator ${wasteClass === 'success' ? 'low-waste' : wasteClass === 'warning' ? 'medium-waste' : 'high-waste'}"></span>
+                        ${rod.remainingLength.toFixed(2)} (${wastePercentage.toFixed(1)}%)
+                    </td>
+                </tr>`;
+            });
+            
+            html += '</table>';
+            cuttingPatternElement.innerHTML = html;
+        }
+
+        function displayVisualization() {
+            let html = '';
+            
+            // Only show used rods
+            const usedRods = cuttingPlan.filter(rod => rod.cuts.length > 0);
+            
+            usedRods.forEach((rod, rodIndex) => {
+                html += `<div class="rod-container">
+                    <div class="rod" style="width: 100%;">`;
+                
+                let currentPosition = 0;
+                
+                // Add cut pieces
+                rod.cuts.forEach((cut, cutIndex) => {
+                    const colorIndex = cutIndex % colorPalette.length;
+                    const percentWidth = (cut / rod.originalLength) * 100;
+                    
+                    html += `<div class="piece" style="left: ${currentPosition}%; width: ${percentWidth}%; background-color: ${colorPalette[colorIndex]}"></div>`;
+                    
+                    currentPosition += percentWidth;
+                });
+                
+                // Add waste
+                if (rod.remainingLength > 0) {
+                    const wastePercentWidth = (rod.remainingLength / rod.originalLength) * 100;
+                    html += `<div class="waste" style="left: ${currentPosition}%; width: ${wastePercentWidth}%;"></div>`;
+                }
+                
+                html += `</div>
+                    <div style="display: flex; justify-content: space-between; font-size: 12px;">
+                        <span>0</span>
+                        <span>${rod.originalLength.toFixed(2)}</span>
+                    </div>
+                </div>`;
+            });
+            
+            rodsVisualization.innerHTML = html;
+        }
+
+        // Template functions
+        function downloadTemplate() {
+            // Create a new workbook
+            const wb = XLSX.utils.book_new();
+            
+            // Create Stock sheet with sample data
+            const stockData = [
+                { Quantity: 5, Length: 1000 },
+                { Quantity: 3, Length: 800 },
+                { Quantity: 2, Length: 1200 }
+            ];
+            const stockSheet = XLSX.utils.json_to_sheet(stockData);
+            XLSX.utils.book_append_sheet(wb, stockSheet, 'Stock');
+            
+            // Create Order sheet with sample data
+            const orderData = [
+                { Length: 400 },
+                { Length: 300 },
+                { Length: 600 },
+                { Length: 250 },
+                { Length: 500 },
+                { Length: 350 }
+            ];
+            const orderSheet = XLSX.utils.json_to_sheet(orderData);
+            XLSX.utils.book_append_sheet(wb, orderSheet, 'Order');
+            
+            // Generate and download the file
+            XLSX.writeFile(wb, 'cutting_stock_template.xlsx');
+        }
+
+        // Results export function
+        function downloadResults() {
+            // Create a new workbook
+            const wb = XLSX.utils.book_new();
+            
+            // Add a summary sheet
+            const summaryData = [
+                { Metric: 'Total Waste', Value: totalWaste.toFixed(2), Percentage: wastePercentage.toFixed(2) + '%' },
+                { Metric: 'Used Stock', Value: usedStockLength.toFixed(2) },
+                { Metric: 'Total Pieces Cut', Value: orderPieces.length }
+            ];
+            const summarySheet = XLSX.utils.json_to_sheet(summaryData);
+            XLSX.utils.book_append_sheet(wb, summarySheet, 'Summary');
+            
+            // Add a cutting plan sheet
+            const cutPlanData = [];
+            const usedRods = cuttingPlan.filter(rod => rod.cuts.length > 0);
+            
+            usedRods.forEach((rod, index) => {
+                // Create a base object for each row
+                const baseRow = {
+                    'Rod Number': index + 1,
+                    'Original Length': rod.originalLength.toFixed(2),
+                    'Remaining (Waste)': rod.remainingLength.toFixed(2),
+                    'Waste %': ((rod.remainingLength / rod.originalLength) * 100).toFixed(2) + '%'
+                };
+                
+                // Add cut columns
+                const maxCuts = Math.max(...usedRods.map(r => r.cuts.length));
+                
+                rod.cuts.forEach((cut, cutIndex) => {
+                    baseRow[`Cut ${cutIndex + 1}`] = cut.toFixed(2);
+                });
+                
+                cutPlanData.push(baseRow);
+            });
+            
+            const cutPlanSheet = XLSX.utils.json_to_sheet(cutPlanData);
+            XLSX.utils.book_append_sheet(wb, cutPlanSheet, 'Cutting Plan');
+            
+            // Generate and download the file
+            XLSX.writeFile(wb, 'cutting_optimization_results.xlsx');
+        }
+
+        // Error handling
+        function showError(message) {
+            errorAlert.textContent = message;
+            errorAlert.classList.remove('hidden');
+        }
+
+        function hideError() {
+            errorAlert.classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
