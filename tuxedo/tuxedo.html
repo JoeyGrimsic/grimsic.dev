@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -235,14 +235,25 @@
         }
 
         .legend {
+            margin-bottom: 20px;
+        }
+        
+        .legend h4 {
+            margin: 10px 0 5px 0;
+            color: var(--secondaryColor);
+        }
+
+        .legend-section {
             display: flex;
-            gap: 20px;
-            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 10px;
         }
 
         .legend-item {
             display: flex;
             align-items: center;
+            min-width: 100px;
         }
 
         .legend-color {
@@ -250,6 +261,7 @@
             height: 20px;
             margin-right: 8px;
             border-radius: 4px;
+            border: 1px solid rgba(0,0,0,0.1);
         }
 
         .template-section {
@@ -357,6 +369,7 @@
             <div class="tab active" data-tab="main">Main Application</div>
             <div class="tab" data-tab="format">File Format Guide</div>
             <div class="tab" data-tab="about">About the Algorithm</div>
+            <div class="tab" data-tab="settings">Settings</div>
         </div>
 
         <div id="main" class="tab-content active">
@@ -396,13 +409,40 @@
                     <div class="visualization">
                         <h3>Visual Representation</h3>
                         <div class="legend">
-                            <div class="legend-item">
-                                <div class="legend-color" style="background-color: #3498db;"></div>
-                                <span>Cut Pieces</span>
+                            <h4>Legend:</h4>
+                            <div class="legend-section">
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background-color: #e74c3c;"></div>
+                                    <span>Waste</span>
+                                </div>
                             </div>
-                            <div class="legend-item">
-                                <div class="legend-color" style="background-color: #e74c3c;"></div>
-                                <span>Waste</span>
+                            
+                            <h4>Rod Piece Colors:</h4>
+                            <div class="legend-section" style="display: flex; flex-wrap: wrap; gap: 10px;">
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background-color: #3498db;"></div>
+                                    <span>Piece 1</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background-color: #2ecc71;"></div>
+                                    <span>Piece 2</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background-color: #9b59b6;"></div>
+                                    <span>Piece 3</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background-color: #e67e22;"></div>
+                                    <span>Piece 4</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background-color: #1abc9c;"></div>
+                                    <span>Piece 5</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background-color: #f1c40f;"></div>
+                                    <span>Piece 6</span>
+                                </div>
                             </div>
                         </div>
                         <div id="rods"></div>
@@ -425,10 +465,13 @@
                     </ul>
                     
                     <h3>Sheet 2: Order Requirements</h3>
-                    <p>Name the second sheet "Order" with the following column:</p>
+                    <p>Name the second sheet "Order" with the following columns:</p>
                     <ul>
+                        <li><strong>Quantity:</strong> Number of pieces needed at this length</li>
                         <li><strong>Length:</strong> Length of each required piece in the same unit as stock rods</li>
                     </ul>
+                    
+                    <p><strong>Note:</strong> Both sheets have the same column order: Quantity first, then Length.</p>
                     
                     <p>You can use the "Download Template" button to get a correctly formatted Excel file template.</p>
                 </div>
@@ -459,6 +502,58 @@
                 </div>
             </div>
         </div>
+        
+        <div id="settings" class="tab-content">
+            <div class="card">
+                <h2>Theme Settings</h2>
+                <div class="theme-settings">
+                    <label for="themeSelect">Select Theme:</label>
+                    <select id="themeSelect" class="select-control">
+                        <option value="default" selected>Default Blue</option>
+                        <option value="dark">Dark Mode</option>
+                        <option value="green">Forest Green</option>
+                        <option value="purple">Royal Purple</option>
+                        <option value="orange">Warm Orange</option>
+                        <option value="custom">Custom Theme</option>
+                    </select>
+                    
+                    <div id="customThemeSettings" class="custom-theme-settings hidden">
+                        <h3>Custom Theme Colors</h3>
+                        <div class="color-picker-group">
+                            <div class="color-picker">
+                                <label for="primaryColor">Primary Color:</label>
+                                <input type="color" id="primaryColor" value="#3498db">
+                            </div>
+                            <div class="color-picker">
+                                <label for="secondaryColor">Secondary Color:</label>
+                                <input type="color" id="secondaryColor" value="#2c3e50">
+                            </div>
+                            <div class="color-picker">
+                                <label for="successColor">Success Color:</label>
+                                <input type="color" id="successColor" value="#2ecc71">
+                            </div>
+                            <div class="color-picker">
+                                <label for="warningColor">Warning Color:</label>
+                                <input type="color" id="warningColor" value="#f39c12">
+                            </div>
+                            <div class="color-picker">
+                                <label for="errorColor">Error Color:</label>
+                                <input type="color" id="errorColor" value="#e74c3c">
+                            </div>
+                            <div class="color-picker">
+                                <label for="lightBg">Light Background:</label>
+                                <input type="color" id="lightBg" value="#ecf0f1">
+                            </div>
+                            <div class="color-picker">
+                                <label for="darkBg">Dark Background:</label>
+                                <input type="color" id="darkBg" value="#34495e">
+                            </div>
+                        </div>
+                        <button id="saveCustomTheme" class="btn btn-success">Apply Custom Theme</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <footer>
             <p>&copy; 2025 Cutting Stock Optimization Tool</p>
@@ -474,11 +569,82 @@
         let wastePercentage = 0;
         let totalStockLength = 0;
         let usedStockLength = 0;
+        let currentUnit = 'cm'; // Default unit
         let colorPalette = [
             '#3498db', '#2ecc71', '#9b59b6', '#e67e22', '#1abc9c',
             '#f1c40f', '#34495e', '#16a085', '#27ae60', '#2980b9',
             '#8e44ad', '#f39c12', '#d35400', '#c0392b', '#7f8c8d'
         ];
+        
+        // Theme definitions
+        const themes = {
+            default: {
+                primaryColor: '#3498db',
+                secondaryColor: '#2c3e50',
+                successColor: '#2ecc71',
+                warningColor: '#f39c12',
+                errorColor: '#e74c3c',
+                lightBg: '#ecf0f1',
+                darkBg: '#34495e',
+                textLight: '#f8f9fa',
+                textDark: '#2c3e50'
+            },
+            dark: {
+                primaryColor: '#6c5ce7',
+                secondaryColor: '#2d3436',
+                successColor: '#00b894',
+                warningColor: '#fdcb6e',
+                errorColor: '#d63031',
+                lightBg: '#2d3436',
+                darkBg: '#1e272e',
+                textLight: '#dfe6e9',
+                textDark: '#b2bec3'
+            },
+            green: {
+                primaryColor: '#27ae60',
+                secondaryColor: '#1e3a29',
+                successColor: '#2ecc71',
+                warningColor: '#f1c40f',
+                errorColor: '#e74c3c',
+                lightBg: '#e9f7ef',
+                darkBg: '#145a32',
+                textLight: '#f8f9fa',
+                textDark: '#1e3a29'
+            },
+            purple: {
+                primaryColor: '#8e44ad',
+                secondaryColor: '#4a235a',
+                successColor: '#2ecc71',
+                warningColor: '#f39c12',
+                errorColor: '#e74c3c',
+                lightBg: '#f5eef8',
+                darkBg: '#6c3483',
+                textLight: '#f8f9fa',
+                textDark: '#4a235a'
+            },
+            orange: {
+                primaryColor: '#e67e22',
+                secondaryColor: '#784212',
+                successColor: '#2ecc71',
+                warningColor: '#f1c40f',
+                errorColor: '#e74c3c',
+                lightBg: '#fef5e7',
+                darkBg: '#d35400',
+                textLight: '#f8f9fa',
+                textDark: '#784212'
+            },
+            custom: {
+                primaryColor: '#3498db',
+                secondaryColor: '#2c3e50',
+                successColor: '#2ecc71',
+                warningColor: '#f39c12',
+                errorColor: '#e74c3c',
+                lightBg: '#ecf0f1',
+                darkBg: '#34495e',
+                textLight: '#f8f9fa',
+                textDark: '#2c3e50'
+            }
+        };
 
         // DOM elements
         const fileUploadArea = document.getElementById('fileUpload');
@@ -494,9 +660,47 @@
         const errorAlert = document.getElementById('errorAlert');
         const tabs = document.querySelectorAll('.tab');
         const tabContents = document.querySelectorAll('.tab-content');
+        const unitSelect = document.getElementById('unitSelect');
+        const themeSelect = document.getElementById('themeSelect');
+        const customThemeSettings = document.getElementById('customThemeSettings');
+        const saveCustomThemeButton = document.getElementById('saveCustomTheme');
 
         // Event listeners
         document.addEventListener('DOMContentLoaded', () => {
+            // First get references to all the elements
+            const tabElements = document.querySelectorAll('.tab');
+            const tabContentElements = document.querySelectorAll('.tab-content');
+            const unitSelectElement = document.getElementById('unitSelect');
+            const themeSelectElement = document.getElementById('themeSelect');
+            const customThemeSettingsElement = document.getElementById('customThemeSettings');
+            const saveCustomThemeButtonElement = document.getElementById('saveCustomTheme');
+            
+            // Then set up tab navigation
+            tabElements.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabId = tab.getAttribute('data-tab');
+                    
+                    // Update active tab
+                    tabElements.forEach(t => {
+                        if (t.getAttribute('data-tab') === tabId) {
+                            t.classList.add('active');
+                        } else {
+                            t.classList.remove('active');
+                        }
+                    });
+                    
+                    // Update active content
+                    tabContentElements.forEach(content => {
+                        if (content.id === tabId) {
+                            content.classList.add('active');
+                        } else {
+                            content.classList.remove('active');
+                        }
+                    });
+                });
+            });
+            
+            // Now set up all other event listeners
             setupEventListeners();
         });
 
@@ -512,6 +716,25 @@
             downloadTemplateButton.addEventListener('click', downloadTemplate);
             downloadResultsButton.addEventListener('click', downloadResults);
             
+            // Unit selection
+            unitSelect.addEventListener('change', function(e) {
+                currentUnit = e.target.value;
+            });
+            
+            // Theme selection
+            themeSelect.addEventListener('change', function(e) {
+                const selectedTheme = e.target.value;
+                if (selectedTheme === 'custom') {
+                    customThemeSettings.classList.remove('hidden');
+                } else {
+                    customThemeSettings.classList.add('hidden');
+                    applyTheme(selectedTheme);
+                }
+            });
+            
+            // Custom theme settings
+            saveCustomThemeButton.addEventListener('click', saveCustomTheme);
+            
             // Tab navigation
             tabs.forEach(tab => {
                 tab.addEventListener('click', () => {
@@ -519,6 +742,94 @@
                     activateTab(tabId);
                 });
             });
+            
+            // Load saved theme on startup
+            loadSavedTheme();
+        }
+        
+        // Theme functions
+        function loadSavedTheme() {
+            const savedTheme = localStorage.getItem('preferred-theme');
+            if (savedTheme) {
+                themeSelect.value = savedTheme;
+                
+                if (savedTheme === 'custom') {
+                    customThemeSettings.classList.remove('hidden');
+                    
+                    // Load custom colors
+                    const customColors = JSON.parse(localStorage.getItem('custom-theme-colors') || '{}');
+                    for (const [key, value] of Object.entries(customColors)) {
+                        const input = document.getElementById(key);
+                        if (input) {
+                            input.value = value;
+                        }
+                    }
+                }
+                
+                applyTheme(savedTheme);
+            }
+        }
+        
+        function applyTheme(themeName) {
+            const theme = themes[themeName] || themes.default;
+            const root = document.documentElement;
+            
+            for (const [property, value] of Object.entries(theme)) {
+                root.style.setProperty(`--${property}`, value);
+            }
+            
+            // Save preference
+            localStorage.setItem('preferred-theme', themeName);
+        }
+        
+        function saveCustomTheme() {
+            const customColors = {
+                primaryColor: document.getElementById('primaryColor').value,
+                secondaryColor: document.getElementById('secondaryColor').value,
+                successColor: document.getElementById('successColor').value,
+                warningColor: document.getElementById('warningColor').value,
+                errorColor: document.getElementById('errorColor').value,
+                lightBg: document.getElementById('lightBg').value,
+                darkBg: document.getElementById('darkBg').value
+            };
+            
+            // Update custom theme
+            themes.custom = {
+                ...themes.custom,
+                ...customColors
+            };
+            
+            // Apply theme
+            applyTheme('custom');
+            
+            // Save custom colors
+            localStorage.setItem('custom-theme-colors', JSON.stringify(customColors));
+        }
+        
+        // Unit conversion functions
+        function convertLength(value, fromUnit, toUnit) {
+            if (fromUnit === toUnit) return value;
+            
+            // Convert to mm as base unit
+            let inMm;
+            switch(fromUnit) {
+                case 'cm': inMm = value * 10; break;
+                case 'm': inMm = value * 1000; break;
+                case 'in': inMm = value * 25.4; break;
+                case 'ft': inMm = value * 304.8; break;
+                case 'mm': inMm = value; break;
+                default: inMm = value;
+            }
+            
+            // Convert from mm to target unit
+            switch(toUnit) {
+                case 'cm': return inMm / 10;
+                case 'm': return inMm / 1000;
+                case 'in': return inMm / 25.4;
+                case 'ft': return inMm / 304.8;
+                case 'mm': return inMm;
+                default: return inMm;
+            }
         }
 
         // Tab navigation functions
@@ -618,6 +929,11 @@
                         return;
                     }
                     
+                    if (orderData.length === 0 || !orderData[0].hasOwnProperty('Quantity')) {
+                        showError('Order sheet must contain a "Quantity" column.');
+                        return;
+                    }
+                    
                     // Process data
                     processData(stockData, orderData);
                     
@@ -666,13 +982,22 @@
             // Prepare order data
             orderData.forEach(item => {
                 const length = parseFloat(item.Length);
+                const quantity = item.Quantity ? parseInt(item.Quantity) : 1;
                 
                 if (isNaN(length) || length <= 0) {
                     showError('Invalid order data. Length must be a positive number.');
                     return;
                 }
                 
-                orderPieces.push(length);
+                if (isNaN(quantity) || quantity <= 0) {
+                    showError('Invalid order data. Quantity must be a positive number.');
+                    return;
+                }
+                
+                // Add pieces based on quantity
+                for (let i = 0; i < quantity; i++) {
+                    orderPieces.push(length);
+                }
             });
             
             // Sort order pieces by length (decreasing)
@@ -763,6 +1088,10 @@
             // Show results section
             resultsSection.classList.remove('hidden');
         }
+        
+        function formatLengthWithUnit(length) {
+            return `${length.toFixed(2)} ${currentUnit}`;
+        }
 
         function displaySummaryStats() {
             const usedRods = cuttingPlan.filter(rod => rod.cuts.length > 0).length;
@@ -775,10 +1104,11 @@
             const html = `
                 <div class="waste-summary">
                     <span class="waste-indicator ${wasteClass === 'success' ? 'low-waste' : wasteClass === 'warning' ? 'medium-waste' : 'high-waste'}"></span>
-                    <strong>Waste: ${wastePercentage.toFixed(2)}%</strong> (${totalWaste.toFixed(2)} units out of ${usedStockLength.toFixed(2)} used)
+                    <strong>Waste: ${wastePercentage.toFixed(2)}%</strong> (${formatLengthWithUnit(totalWaste)} out of ${formatLengthWithUnit(usedStockLength)} used)
                 </div>
                 <p><strong>Rods Used:</strong> ${usedRods} out of ${cuttingPlan.length} available</p>
                 <p><strong>Pieces Cut:</strong> ${orderPieces.length}</p>
+                <p><strong>Unit:</strong> ${currentUnit}</p>
             `;
             
             summaryStatsElement.innerHTML = html;
@@ -799,11 +1129,11 @@
                 
                 html += `<tr>
                     <td>${index + 1}</td>
-                    <td>${rod.originalLength.toFixed(2)}</td>
-                    <td>${rod.cuts.map(cut => cut.toFixed(2)).join(', ')}</td>
+                    <td>${formatLengthWithUnit(rod.originalLength)}</td>
+                    <td>${rod.cuts.map(cut => formatLengthWithUnit(cut)).join(', ')}</td>
                     <td>
                         <span class="waste-indicator ${wasteClass === 'success' ? 'low-waste' : wasteClass === 'warning' ? 'medium-waste' : 'high-waste'}"></span>
-                        ${rod.remainingLength.toFixed(2)} (${wastePercentage.toFixed(1)}%)
+                        ${formatLengthWithUnit(rod.remainingLength)} (${wastePercentage.toFixed(1)}%)
                     </td>
                 </tr>`;
             });
@@ -842,8 +1172,8 @@
                 
                 html += `</div>
                     <div style="display: flex; justify-content: space-between; font-size: 12px;">
-                        <span>0</span>
-                        <span>${rod.originalLength.toFixed(2)}</span>
+                        <span>0 ${currentUnit}</span>
+                        <span>${formatLengthWithUnit(rod.originalLength)}</span>
                     </div>
                 </div>`;
             });
@@ -862,19 +1192,19 @@
                 { Quantity: 3, Length: 800 },
                 { Quantity: 2, Length: 1200 }
             ];
-            const stockSheet = XLSX.utils.json_to_sheet(stockData);
+            const stockSheet = XLSX.utils.json_to_sheet(stockData, { header: ['Quantity', 'Length'] });
             XLSX.utils.book_append_sheet(wb, stockSheet, 'Stock');
             
-            // Create Order sheet with sample data
+            // Create Order sheet with sample data (same column order as Stock)
             const orderData = [
-                { Length: 400 },
-                { Length: 300 },
-                { Length: 600 },
-                { Length: 250 },
-                { Length: 500 },
-                { Length: 350 }
+                { Quantity: 2, Length: 400 },
+                { Quantity: 3, Length: 300 },
+                { Quantity: 1, Length: 600 },
+                { Quantity: 4, Length: 250 },
+                { Quantity: 2, Length: 500 },
+                { Quantity: 1, Length: 350 }
             ];
-            const orderSheet = XLSX.utils.json_to_sheet(orderData);
+            const orderSheet = XLSX.utils.json_to_sheet(orderData, { header: ['Quantity', 'Length'] });
             XLSX.utils.book_append_sheet(wb, orderSheet, 'Order');
             
             // Generate and download the file
@@ -888,9 +1218,10 @@
             
             // Add a summary sheet
             const summaryData = [
-                { Metric: 'Total Waste', Value: totalWaste.toFixed(2), Percentage: wastePercentage.toFixed(2) + '%' },
-                { Metric: 'Used Stock', Value: usedStockLength.toFixed(2) },
-                { Metric: 'Total Pieces Cut', Value: orderPieces.length }
+                { Metric: 'Total Waste', Value: formatLengthWithUnit(totalWaste), Percentage: wastePercentage.toFixed(2) + '%' },
+                { Metric: 'Used Stock', Value: formatLengthWithUnit(usedStockLength) },
+                { Metric: 'Total Pieces Cut', Value: orderPieces.length },
+                { Metric: 'Unit', Value: currentUnit }
             ];
             const summarySheet = XLSX.utils.json_to_sheet(summaryData);
             XLSX.utils.book_append_sheet(wb, summarySheet, 'Summary');
@@ -903,8 +1234,8 @@
                 // Create a base object for each row
                 const baseRow = {
                     'Rod Number': index + 1,
-                    'Original Length': rod.originalLength.toFixed(2),
-                    'Remaining (Waste)': rod.remainingLength.toFixed(2),
+                    'Original Length': `${rod.originalLength.toFixed(2)} ${currentUnit}`,
+                    'Remaining (Waste)': `${rod.remainingLength.toFixed(2)} ${currentUnit}`,
                     'Waste %': ((rod.remainingLength / rod.originalLength) * 100).toFixed(2) + '%'
                 };
                 
@@ -912,7 +1243,7 @@
                 const maxCuts = Math.max(...usedRods.map(r => r.cuts.length));
                 
                 rod.cuts.forEach((cut, cutIndex) => {
-                    baseRow[`Cut ${cutIndex + 1}`] = cut.toFixed(2);
+                    baseRow[`Cut ${cutIndex + 1}`] = `${cut.toFixed(2)} ${currentUnit}`;
                 });
                 
                 cutPlanData.push(baseRow);
