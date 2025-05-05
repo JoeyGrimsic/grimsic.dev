@@ -1,8 +1,14 @@
 <!doctype html>
 <html>
   <head>
+    <script src="pixi.js"></script>
   </head>
   <body>
-    <h1>Hello PixiJS!</h1>
+    <h1>
+      <script type="module">
+        const app = new PIXI.Application();
+        await app.init({ width: 640, height: 360 });
+      </script>
+    </h1>
   </body>
 </html>
