@@ -1,7 +1,3 @@
-<div align="center">
-  <img src="tuxedo.png" alt="Cutting Stock Optimization Visual" width="300"/>
-</div>
-
 # Cutting Stock Optimization Web Application
 
 A single-file web application that optimizes cutting patterns for stock rods to minimize waste using the First-Fit Decreasing algorithm.
