@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SmartInsight — AI File Analyzer</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <header>
+    <a href="https://grimsic.dev" class="back-link">← grimsic.dev</a>
+    <h1>SmartInsight</h1>
+    <p class="subtitle">Upload an image or document. Get AI-powered analysis instantly.</p>
+  </header>
+
+  <main>
+    <div id="upload-zone" class="upload-zone" role="button" tabindex="0"
+         aria-label="Upload file drop zone">
+      <input type="file" id="file-input" accept="image/*,.pdf,.txt" hidden />
+      <div class="upload-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="1.5">
+          <path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>
+          <polyline points="16 12 12 8 8 12"/>
+          <line x1="12" y1="8" x2="12" y2="20"/>
+        </svg>
+      </div>
+      <p class="upload-label">Drop a file here or <span class="link">browse</span></p>
+      <p class="upload-hint">Images (JPG, PNG, GIF, WebP) · PDF · TXT · Max 20 MB</p>
+    </div>
+
+    <div id="status-box" class="status-box hidden">
+      <div class="status-header">
+        <span id="status-icon" class="status-icon"></span>
+        <span id="status-text">Uploading…</span>
+      </div>
+      <div id="progress-bar-wrap" class="progress-bar-wrap">
+        <div id="progress-bar" class="progress-bar"></div>
+      </div>
+    </div>
+
+    <section id="result-section" class="result-section hidden">
+      <div class="result-meta">
+        <span id="result-filename" class="result-filename"></span>
+        <span id="result-model" class="result-model"></span>
+      </div>
+      <div id="result-text" class="result-text"></div>
+      <button id="analyze-another" class="btn-secondary">Analyze another file</button>
+    </section>
+  </main>
+
+  <footer>
+    <span>Powered by Vertex AI (Gemini) · Cloud Run · Cloud Functions · Firestore</span>
+  </footer>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
