@@ -311,16 +311,25 @@
     const uTime = gl.getUniformLocation(prog, "u_time");
 
     function resize() {
-      canvas.width  = window.innerWidth;
-      canvas.height = window.innerHeight;
+      const vv = window.visualViewport;
+      canvas.width  = vv ? vv.width  : window.innerWidth;
+      canvas.height = vv ? vv.height : window.innerHeight;
       gl.viewport(0, 0, canvas.width, canvas.height);
     }
-    window.addEventListener("resize", resize);
+    (window.visualViewport || window).addEventListener("resize", resize);
     resize();
 
-    function frame(t) {
+    let elapsed = 0;
+    let lastTime = null;
+
+    function frame(now) {
+      if (lastTime !== null) {
+        // cap delta to 50ms so paused RAF (iOS scroll) doesn't jump the animation
+        elapsed += Math.min(now - lastTime, 50);
+      }
+      lastTime = now;
       gl.uniform2f(uRes, canvas.width, canvas.height);
-      gl.uniform1f(uTime, t * 0.001);
+      gl.uniform1f(uTime, elapsed * 0.001);
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
       requestAnimationFrame(frame);
     }
