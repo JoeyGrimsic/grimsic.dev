@@ -34,7 +34,14 @@
     .result-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: .5rem; }
     .result-filename { font-weight: 600; font-size: .95rem; }
     .result-model { font-size: .75rem; color: var(--muted); background: var(--border); padding: 2px 8px; border-radius: 99px; }
-    .result-text { color: var(--text); font-size: .95rem; line-height: 1.7; white-space: pre-wrap; margin-bottom: 1.25rem; }
+    .result-text { color: var(--text); font-size: .95rem; line-height: 1.7; margin-bottom: 1.25rem; }
+    .result-text p { margin-bottom: .75rem; }
+    .result-text p:last-child { margin-bottom: 0; }
+    .result-text strong { color: #c4b5fd; font-weight: 600; }
+    .result-text ul, .result-text ol { padding-left: 1.4rem; margin-bottom: .75rem; }
+    .result-text li { margin-bottom: .3rem; }
+    .result-text h1, .result-text h2, .result-text h3 { color: var(--text); font-weight: 600; margin: 1rem 0 .4rem; }
+    .result-text code { background: var(--border); padding: 1px 5px; border-radius: 4px; font-size: .875em; }
     .btn-secondary { background: transparent; border: 1px solid var(--border); color: var(--muted); padding: .5rem 1.1rem; border-radius: 8px; cursor: pointer; font-size: .875rem; transition: border-color .2s, color .2s; }
     .btn-secondary:hover { border-color: var(--accent); color: var(--text); }
     .hidden { display: none !important; }
@@ -81,6 +88,7 @@
 
   <footer>Powered by Vertex AI (Gemini) · Cloud Run · Cloud Functions · Firestore</footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/marked@13/marked.min.js"></script>
   <script>
     const API = "https://smartinsight-982961624122.us-central1.run.app";
 
@@ -171,7 +179,7 @@
       statusBox.classList.add("hidden");
       resultFilename.textContent = filename;
       resultModel.textContent = data.model || "Gemini";
-      resultText.textContent = data.analysis;
+      resultText.innerHTML = marked.parse(data.analysis);
       resultSection.classList.remove("hidden");
     }
   </script>
